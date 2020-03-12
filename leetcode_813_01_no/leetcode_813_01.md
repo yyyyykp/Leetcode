@@ -38,6 +38,37 @@ public:
 ```c++
 class Solution {
 public:
+    double largestSumOfAverages(vector<int>& A, int K) {
+        int len = A.size();
+        double sum[len+1];
+        double dp[len+1][K+1];
+        memset(dp,0,sizeof(dp));
+        memset(sum,0,sizeof(sum));
+        for(int i=0;i<len;i++){
+            sum[i+1]=sum[i]+A[i];
+            dp[i+1][1]=sum[i+1]/(i+1);
+        }
+        for(int i=2;i<=len;i++){
+            for(int k=2;k<=K;k++){
+                for(int j=k-1;j<i;j++){
+                    dp[i][k] = max(dp[i][k],dp[j][(k-1)]+(sum[i]-sum[j])/(i-j));
+                }
+            }
+        }
+        return dp[len][K];
+    }
+};
+```
+
+接下来的空间优化是从官方题解理解整理的：
+
+- 空间复杂度优化①：
+
+​		从上边的代码可以看出，dp\[i][k]的状态是从dp\[j][k-1]（j<i）转化而来的，所以数组的第二维便可以压缩成大小为2。
+
+```c++
+class Solution {
+public:
     double largestSumOfAverages(vector<int> &A, int K) {
         int len = A.size();
         double sum[len + 1];
@@ -57,38 +88,6 @@ public:
             }
         }
         return dp[len][K % 2];
-    }
-};
-```
-
-接下来的空间优化是从官方题解理解整理的：
-
-- 空间复杂度优化①：
-
-​		从上边的代码可以看出，dp\[i][k]的状态是从dp\[j][k-1]（j<i）转化而来的，所以数组的第二维便可以压缩成大小为2。
-
-```c++
-class Solution {
-public:
-    double largestSumOfAverages(vector<int>& A, int K) {
-        int len = A.size();
-        double sum[len+1];
-        double dp[len+1][2];
-        memset(dp,0,sizeof(dp));
-        memset(sum,0,sizeof(sum));
-        for(int i=0;i<len;i++){
-            sum[i+1]=sum[i]+A[i];
-            dp[i+1][1]=sum[i+1]/(i+1);
-        }
-        for(int i=2;i<=len;i++){
-            for(int k=2;k<=K;k++){
-                for(int j=k-1;j<i;j++){
-                    dp[i][k%2] = max(dp[i][k%2],dp[j][(k-1)%2]+(sum[i]-sum[j])/(i-j));
-                }
-            }
-        }
-        cout<<dp[len][0]<<" "<<dp[len][1]<<endl;
-        return dp[len][K%2];
     }
 };
 ```
